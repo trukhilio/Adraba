@@ -1,26 +1,24 @@
 //find elements that would be sticky
-var containers = document.getElementsByClassName("container");
+var containers = document.getElementsByClassName("container"),
+    timer,
+    i,
+    stickyElement,
+    nextElement,
+    position,
+    heightElem,
+    nextPosition,
+    contain,
+    positionNextElem;
 
 function sticky(){
-    var i,
-        stickyElement,
-        nextElement,
-        position,
-        heightElem,
-        nextPosition,
-        positionNextElem;
+
     for( i = 0; i < containers.length; i++){
         stickyElement = containers[i];
         nextElement = containers[i+1];
         position = stickyElement.offsetTop; //take offset position of the element
 
         //here we find height of the element
-        Array.prototype.map.call(stickyElement.children, function(item){
-            if(item.className==="headline"){
-                heightElem = item.clientHeight;
-            }
-            return heightElem
-        });
+        heightElem = stickyElement.children[0].clientHeight;
 
         //For last element next element of this pseudo array is undefined but we can find position the next element in the DOM tree
         nextPosition = stickyElement.nextElementSibling.offsetTop;
@@ -28,20 +26,37 @@ function sticky(){
         //set next element position
         nextElement !== undefined ? positionNextElem = nextElement.offsetTop : positionNextElem = nextPosition-heightElem;
 
+        contain = stickyElement.classList.contains("sticky");
         //adding or removing classes depending of the element's position
         if (window.pageYOffset >= position) {
-            stickyElement.classList.add("sticky");
+            if (!contain){
+                stickyElement.classList.add("sticky");
+            }
         } else {
+            if (contain){
                 stickyElement.classList.remove("sticky");
+            }
         }
         if (window.pageYOffset >= positionNextElem){
-            stickyElement.classList.add("stickyBottom");
+            if (!contain){
+                stickyElement.classList.add("stickyBottom");
+            }
         } else {
-            stickyElement.classList.remove("stickyBottom");
+            if (contain){
+                stickyElement.classList.remove("stickyBottom");
+            }
         }
     }
 }
 
-window.onscroll = function() {
+timer = false;
+
+window.addEventListener('scroll', function() {
+    if(timer) {
+        return
+    }
     sticky();
-};
+    setTimeout(function(){
+        timer = false;
+    },50);
+}, false);
